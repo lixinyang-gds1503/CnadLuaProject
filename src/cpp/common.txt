@@ -1,0 +1,39 @@
+    //////////向量//////////////
+    //D3DXVECTOR3 u(1.0f, 0.0f, 1.0f);
+    //D3DXVECTOR3 v(0.0f, 1.0f, 0.0f);
+    //float uLen = D3DXVec3Length(&u); //求向量的模
+    //D3DXVECTOR3 *pout;
+    //D3DXVec3Normalize(pout, &u); //向量归一化
+    // D3DXVec3Dot(); //点乘
+    // D3DXVec3Cross(); //叉乘
+    // if (u != v)
+    // {
+    //      MessageBox(NULL,TEXT("向量u与向量v相等"),TEXT("D3DXVECTOR3"),MB_OKCANCEL);
+    // }
+    // else
+    // {
+    //     MessageBox(NULL,TEXT("Hello,Windows!"),TEXT("Welcome"),MB_OKCANCEL);
+    // }
+    /////////////矩阵////////////////
+    // D3DXMATRIX
+    //////////平面///////////
+    // D3DXPLANE
+    /*D3DXPLANE plane(0.0f, 1.0f, 0.0f, 0.0f);
+    D3DXVECTOR4 point(3.0f, 5.0f, 2.0f, 0.0f);
+    FLOAT x = D3DXPlaneDotCoord(&plane, &point); //指定平面和点之间距离
+
+    if (x > -0.001f && x < 0.001f)
+    {
+        MessageBox(NULL, TEXT("点在平面上"), TEXT("D3DXPLANE"), MB_OKCANCEL);
+    }
+    else if (x > 0)
+    {
+        MessageBox(NULL, TEXT("点在平面外"), TEXT("D3DXPLANE"), MB_OKCANCEL);
+    }
+    else if (x < 0)
+    {
+        MessageBox(NULL, TEXT("点在平面内"), TEXT("D3DXPLANE"), MB_OKCANCEL);
+    }
+
+    ///////////射线//////////////
+    */
