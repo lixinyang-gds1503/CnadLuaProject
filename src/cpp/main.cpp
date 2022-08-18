@@ -52,7 +52,7 @@ void Cleanup()
 {
 	for(int i = 0; i < 5; i++)
     {
-       // Objects[i]->Release();
+    	Objects[i]->Release();
     }
 		
 }
@@ -124,17 +124,25 @@ bool Setup()
 	D3DXMATRIX proj;
 	D3DXMatrixPerspectiveFovLH(
 			&proj,
-			D3DX_PI * 0.5f, // 90 - degree
+			D3DX_PI * -0.5f, // 90 - degree
 			(float)WINDOW_WIDTH / (float)WINDOW_HEIGHT,
 			1.0f,
 			1000.0f);
-	//g_device->SetTransform(D3DTS_PROJECTION, &proj);
+	g_device->SetTransform(D3DTS_PROJECTION, &proj);
 
-	//
-	// Switch to wireframe mode.
-	//
+	
+	//Switch to wireframe mode.
+	
 
-	//g_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+	g_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+
+	//test
+
+	// D3DXMATRIX cubeWorld_m;
+	// D3DXMatrixTranslation(&cubeWorld_m,-3.0f,2.0f,6.0f);
+	// g_device->SetTransform(D3DTS_WORLD,&cubeWorld_m);
+	// drawCube();
+
 
 	return true;
 }
@@ -144,57 +152,58 @@ bool Display(float timeDelta)
 {
 	if( g_device )
 	{
-		// // Animate the camera:
-		// // The camera will circle around the center of the scene.  We use the
-		// // sin and cos functions to generate points on the circle, then scale them
-		// // by 10 to further the radius.  In addition the camera will move up and down
-		// // as it circles about the scene.
-		// static float angle = (3.0f * D3DX_PI) / 2.0f;
-		// static float cameraHeight = 0.0f;
-		// static float cameraHeightDirection = 5.0f;
+		// Animate the camera:
+		// The camera will circle around the center of the scene.  We use the
+		// sin and cos functions to generate points on the circle, then scale them
+		// by 10 to further the radius.  In addition the camera will move up and down
+		// as it circles about the scene.
+		static float angle = (3.0f * D3DX_PI) / 2.0f;
+		static float cameraHeight = 0.0f;
+		static float cameraHeightDirection = 5.0f;
 		
-		// D3DXVECTOR3 position( cosf(angle) * 10.0f, cameraHeight, sinf(angle) * 10.0f );
+		D3DXVECTOR3 position( cosf(angle) * 10.0f, cameraHeight, sinf(angle) * 10.0f );
 
-		// // the camera is targetted at the origin of the world
-		// D3DXVECTOR3 target(0.0f, 0.0f, 0.0f);
+		// the camera is targetted at the origin of the world
+		D3DXVECTOR3 target(0.0f, 0.0f, 0.0f);
 
 		// // the worlds up vector
-		// D3DXVECTOR3 up(0.0f, 1.0f, 0.0f);
+		D3DXVECTOR3 up(0.0f, -1.0f, 0.0f);
 
-		// D3DXMATRIX V;
-		// D3DXMatrixLookAtLH(&V, &position, &target, &up);
-		// g_device->SetTransform(D3DTS_VIEW, &V);
+		D3DXMATRIX V;
+		D3DXMatrixLookAtLH(&V, &position, &target, &up);
+		//D3DXMatrixLookAtRH(&V, &position, &target, &up);
+		g_device->SetTransform(D3DTS_VIEW, &V);
 
-		// // compute the position for the next frame
-		// angle += timeDelta;
-		// if( angle >= 6.28f )
-		// 	angle = 0.0f;
+		// compute the position for the next frame
+		angle += timeDelta;
+		if( angle >= 6.28f )
+			angle = 0.0f;
 
-		// // compute the height of the camera for the next frame
-		// cameraHeight += cameraHeightDirection * timeDelta;
-		// if( cameraHeight >= 10.0f )
-		// 	cameraHeightDirection = -5.0f;
+		// compute the height of the camera for the next frame
+		cameraHeight += cameraHeightDirection * timeDelta;
+		if( cameraHeight >= 10.0f )
+			cameraHeightDirection = -5.0f;
 
-		// if( cameraHeight <= -10.0f )
-		// 	cameraHeightDirection = 5.0f;
+		if( cameraHeight <= -10.0f )
+			cameraHeightDirection = 5.0f;
 
-		//
+		
 		// Draw the Scene:
-		//
+		
 
 		g_device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0xffffffff, 1.0f, 0);
-		//g_device->BeginScene();
+		g_device->BeginScene();
 
-		// for(int i = 0; i < 5; i++)
-		// {
-		// 	// Set the world matrix that positions the object.
-		// 	g_device->SetTransform(D3DTS_WORLD, &ObjWorldMatrices[i]);
+		for(int i = 0; i < 5; i++)
+		{
+			// Set the world matrix that positions the object.
+			g_device->SetTransform(D3DTS_WORLD, &ObjWorldMatrices[i]);
 
-		// 	// Draw the object using the previously set world matrix.
-		// 	Objects[i]->DrawSubset(0);
-		// }
+			// Draw the object using the previously set world matrix.
+			Objects[i]->DrawSubset(0);
+		}
 
-		//g_device->EndScene();
+		g_device->EndScene();
 		g_device->Present(0, 0, 0, 0);
 	}
 	return true;
