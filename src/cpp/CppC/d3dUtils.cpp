@@ -25,8 +25,8 @@ HWND d3dutils::CreateWindows(
         return nullptr;
 
     //【3】窗口创建四步曲之三：正式创建窗口
-    HWND _hwnd = CreateWindow(TEXT("ForTheDreamOfGameDevelop"), WINDOW_TITLE, //喜闻乐见的创建窗口函数CreateWindow
-                              WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, width,
+    HWND _hwnd = CreateWindow(TEXT("ForTheDreamOfGameDevelop"), WINDOW_TITLE, //喜闻乐见的创建窗口函数CreateWindow //WS_OVERLAPPEDWINDOW
+                              WS_EX_TOPMOST | WS_POPUP, CW_USEDEFAULT, CW_USEDEFAULT, width,
                               height, NULL, NULL, hinstance, NULL);
 
     if (_hwnd)

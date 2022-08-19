@@ -12,8 +12,8 @@
 //#pragma comment(lib,"E:/CnadLuaProject/lib/d3d9.lib")
 
 
-#define WINDOW_WIDTH	932							//为窗口宽度定义的宏，以方便在此处修改窗口宽度
-#define WINDOW_HEIGHT	700							//为窗口高度定义的宏，以方便在此处修改窗口高度
+#define WINDOW_WIDTH	800							//为窗口宽度定义的宏，以方便在此处修改窗口宽度
+#define WINDOW_HEIGHT	600							//为窗口高度定义的宏，以方便在此处修改窗口高度
 
 HDC g_hdc=NULL;
 IDirect3DDevice9 *g_device = 0;
@@ -271,7 +271,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                     WndProc);
 
     /* ------------------------------如何初始化Direct3D----------------------------------- */
-    if(!InitDirent3DDevice(hwnd,true,D3DDEVTYPE_HAL,WINDOW_WIDTH,WINDOW_HEIGHT,&g_device))
+    if(!InitDirent3DDevice(hwnd,false,D3DDEVTYPE_HAL,WINDOW_WIDTH,WINDOW_HEIGHT,&g_device))
     {
         MessageBox(0,TEXT("InitD3D failed!"),0,0);
         return 0;
