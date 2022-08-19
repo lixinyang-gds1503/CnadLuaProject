@@ -67,23 +67,23 @@ bool Setup()
 
     cb_ib->Lock(0,0,(void**)&indexs,0);
     //前面
-    indexs[0] = 1; indexs[1] = 2; indexs[2] = 5;
-    indexs[3] = 6; indexs[4] = 2; indexs[5] = 5;
+    indexs[0] = 1; indexs[1] = 5; indexs[2] = 6;
+    indexs[3] = 1; indexs[4] = 6; indexs[5] = 2;
     //背面
     indexs[6] = 0; indexs[7] = 3; indexs[8] = 7;
     indexs[9] = 0; indexs[10] = 4; indexs[11] = 7;
     //left
-    indexs[12] = 2; indexs[13] = 3; indexs[14] = 6;
-    indexs[15] = 3; indexs[16] = 7; indexs[17] = 6;
+    indexs[12] = 2; indexs[13] = 6; indexs[14] = 7;
+    indexs[15] = 2; indexs[16] = 3; indexs[17] = 7;
     //right
-    indexs[18] = 0; indexs[19] = 1; indexs[20] = 4;
-    indexs[21] = 5; indexs[22] = 1; indexs[23] = 4;
+    indexs[18] = 1; indexs[19] = 5; indexs[20] = 4;
+    indexs[21] = 1; indexs[22] = 0; indexs[23] = 4;
     //top
-    indexs[24] = 1; indexs[25] = 2; indexs[26] = 0;
-    indexs[27] = 3; indexs[28] = 2; indexs[29] = 0;
+    indexs[24] = 0; indexs[25] = 1; indexs[26] = 2;
+    indexs[27] = 0; indexs[28] = 3; indexs[29] = 2;
     //bottom
     indexs[30] = 4; indexs[31] = 5; indexs[32] = 6;
-    indexs[33] = 5; indexs[34] = 6; indexs[35] = 7;
+    indexs[33] = 4; indexs[34] = 6; indexs[35] = 7;
 
     cb_ib->Unlock();
 
@@ -117,18 +117,18 @@ bool Display(float timeDelta)
 	if( g_device )
 	{		
 
-        D3DXMATRIX rx,ry;
-        D3DXMatrixRotationX(&rx,D3DX_PI/4.0f);
-        static float y = 0.0f;
-        D3DXMatrixRotationY(&ry,y);
-        y+=timeDelta;
-        if (y >= 6.28f)
-        {   
-            y = 0.0f;
-        }
+        // D3DXMATRIX rx,ry;
+        // D3DXMatrixRotationX(&rx,D3DX_PI/4.0f);
+        // static float y = 0.0f;
+        // D3DXMatrixRotationY(&ry,y);
+        // y+=timeDelta;
+        // if (y >= 6.28f)
+        // {   
+        //     y = 0.0f;
+        // }
 
-        D3DXMATRIX p = rx * ry;
-        g_device->SetTransform(D3DTS_WORLD,&p);
+        // D3DXMATRIX p = rx * ry;
+        // g_device->SetTransform(D3DTS_WORLD,&p);
 
         
 		g_device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0xffffffff, 1.0f, 0);
@@ -137,7 +137,7 @@ bool Display(float timeDelta)
         g_device->SetStreamSource(0,cb_vb,0,sizeof(cubeVertex));
         g_device->SetIndices(cb_ib);
         g_device->SetFVF(cube::cubeVertex::FVF);
-        g_device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,0,0,8,0,24);
+        g_device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,0,0,12,0,24);
 
 
 		g_device->EndScene();
