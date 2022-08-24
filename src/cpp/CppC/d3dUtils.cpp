@@ -50,25 +50,24 @@ bool d3dutils::InitDirent3DDevice(
     int width, int height,
     IDirect3DDevice9 **device)
 {
-       IDirect3D9 *_d3d9;
+    IDirect3D9 *_d3d9;
     _d3d9 = Direct3DCreate9(D3D_SDK_VERSION);
     if (_d3d9 != nullptr)
     {
-        D3DCAPS9 caps;
+        //D3DCAPS9 caps;
         //获取显卡设备信息
         _d3d9->GetDeviceCaps(
-            D3DADAPTER_DEFAULT,         
+            D3DADAPTER_DEFAULT,
             D3DDEVTYPE::D3DDEVTYPE_HAL,
-            &caps
-        );
+            &g_caps);
 
         //设置硬件加速
         int vp = 0;
-        if (caps.DevCaps & D3DDEVCAPS_HWTRANSFORMANDLIGHT)
+        if (g_caps.DevCaps & D3DDEVCAPS_HWTRANSFORMANDLIGHT)
         {
-           vp = D3DCREATE_HARDWARE_VERTEXPROCESSING;
+            vp = D3DCREATE_HARDWARE_VERTEXPROCESSING;
         }
-        else 
+        else
         {
             vp = D3DCREATE_SOFTWARE_VERTEXPROCESSING;
         }
@@ -78,34 +77,33 @@ bool d3dutils::InitDirent3DDevice(
         d3dpp.BackBufferHeight = height;
 
         D3DDISPLAYMODE pMode;
-        if (FAILED(_d3d9->GetAdapterDisplayMode(D3DADAPTER_DEFAULT,&pMode)))
+        if (FAILED(_d3d9->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &pMode)))
         {
             return FALSE;
         }
-        
-        d3dpp.BackBufferFormat = pMode.Format;//像素格式
+
+        d3dpp.BackBufferFormat = pMode.Format; //像素格式
         d3dpp.BackBufferCount = 1;
-        d3dpp.MultiSampleType = D3DMULTISAMPLE_NONE;// 多重采样级别
+        d3dpp.MultiSampleType = D3DMULTISAMPLE_NONE; // 多重采样级别
         d3dpp.MultiSampleQuality = 0;
         d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
         d3dpp.hDeviceWindow = hwnd;
         d3dpp.Windowed = windowsType;
         d3dpp.EnableAutoDepthStencil = true;
         d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
-        d3dpp.Flags = 0;//D3DPRESENTFLAG_DEVICECLIP
+        d3dpp.Flags = 0; // D3DPRESENTFLAG_DEVICECLIP
         d3dpp.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;
         d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 
         //创建IDirect3DDevice9接口
-        //IDirect3DDevice9 *device = 0;
+        // IDirect3DDevice9 *device = 0;
         HRESULT hr = _d3d9->CreateDevice(
             D3DADAPTER_DEFAULT,
             D3DDEVTYPE_HAL,
             hwnd,
             D3DCREATE_HARDWARE_VERTEXPROCESSING,
             &d3dpp,
-            device
-        );
+            device);
 
         if (FAILED(hr))
         {
@@ -113,10 +111,38 @@ bool d3dutils::InitDirent3DDevice(
             MessageBox(NULL, TEXT("crateDevice failed"), TEXT("D3DX"), MB_OKCANCEL);
             return FALSE;
         }
-        
 
         _d3d9->Release();
         return TRUE;
     }
     return FALSE;
 }
+
+D3DMATERIAL9 d3dutils::InitMtrl(
+    D3DXCOLOR a,
+    D3DXCOLOR d,
+    D3DXCOLOR s,
+    D3DXCOLOR e,
+    float p)
+{
+    D3DMATERIAL9 mtrl;
+    mtrl.Ambient = a;
+    mtrl.Diffuse = d;
+    mtrl.Specular = s;
+    mtrl.Emissive = e;
+    mtrl.Power = p;
+    return mtrl;
+}
+
+
+D3DLIGHT9 d3dutils::InitDirectionallight(D3DXVECTOR3 *direction,D3DXCOLOR *color)
+{
+    D3DLIGHT9 light;
+    ZeroMemory(&light,sizeof(light));
+    light.Type = D3DLIGHT_DIRECTIONAL;
+    //light.Ambient = *color * 0.4f;
+    //light.Diffuse = *color;
+    //light.Specular = *color * 0.6f;
+    light.Direction = *direction;
+    return light;
+}// 平行光源

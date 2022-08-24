@@ -1,7 +1,7 @@
 #include "cube.h"
 
-const DWORD cube::cubeVertex::FVF = D3DFVF_XYZ;
-
+const DWORD cube::cubeVertex::FVF = D3DFVF_XYZ /*| D3DFVF_DIFFUSE*/ | D3DFVF_NORMAL | D3DFVF_TEX1;
+                                    // 坐标           颜色                 法线           纹理
 bool cube::CreateVertexBuffer(
         IDirect3DDevice9 *devict,
         UINT Length, 
