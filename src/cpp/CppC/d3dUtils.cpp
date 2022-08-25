@@ -14,7 +14,7 @@ HWND d3dutils::CreateWindows(
     wndClass.cbClsExtra = 0;                                                                                         //窗口类的附加内存，取0就可以了
     wndClass.cbWndExtra = 0;                                                                                         //窗口的附加内存，依然取0就行了
     wndClass.hInstance = hinstance;                                                                                  //指定包含窗口过程的程序的实例句柄。
-    wndClass.hIcon = (HICON)::LoadImage(NULL, TEXT("icon.ico"), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE); //本地加载自定义ico图标
+    wndClass.hIcon = (HICON)::LoadImage(NULL, TEXT("src/cpp/icon.ico"), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE); //本地加载自定义ico图标
     wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);                                                                  //指定窗口类的光标句柄。
     wndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);                                                    //为hbrBackground成员指定一个白色画刷句柄
     wndClass.lpszMenuName = NULL;                                                                                    //用一个以空终止的字符串，指定菜单资源的名字。
