@@ -90,7 +90,7 @@ bool d3dutils::InitDirent3DDevice(
         d3dpp.hDeviceWindow = hwnd;
         d3dpp.Windowed = windowsType;
         d3dpp.EnableAutoDepthStencil = true;
-        d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
+        d3dpp.AutoDepthStencilFormat = D3DFMT_D24S8;//深度 /模板缓冲区
         d3dpp.Flags = 0; // D3DPRESENTFLAG_DEVICECLIP
         d3dpp.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;
         d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
@@ -146,3 +146,12 @@ D3DLIGHT9 d3dutils::InitDirectionallight(D3DXVECTOR3 *direction,D3DXCOLOR *color
     light.Direction = *direction;
     return light;
 }// 平行光源
+
+
+void d3dutils::ComputeNormal(D3DXVECTOR3 *p0,D3DXVECTOR3 *p1,D3DXVECTOR3 *p2,D3DXVECTOR3 *out)
+{
+    D3DXVECTOR3 u = *p1 -*p0;
+    D3DXVECTOR3 v = *p2 -*p0;
+    D3DXVec3Cross(out,&u,&v);
+    D3DXVec3Normalize(out,out);
+};

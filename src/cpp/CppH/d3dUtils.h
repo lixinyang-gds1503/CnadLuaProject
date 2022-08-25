@@ -56,6 +56,10 @@ namespace d3dutils
     D3DLIGHT9 InitSpotlight(D3DXVECTOR3 *position,D3DXVECTOR3 *direction,D3DXCOLOR *color);// 聚光灯光源
 
 
+    //计算顶点法向量 p0 p1 p2 顺时针
+    void ComputeNormal(D3DXVECTOR3 *p0,D3DXVECTOR3 *p1,D3DXVECTOR3 *p2,D3DXVECTOR3 *out);
+
+
 }
 
 #endif
