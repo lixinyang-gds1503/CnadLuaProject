@@ -1,4 +1,4 @@
-// 模板
+// 文本
 
 #include <windows.h>
 #include <string>
@@ -19,16 +19,38 @@ using namespace d3dutils;
 using namespace cube;
 using namespace std;
 
+DWORD FrameCnt;
+FLOAT TimeElapsed;
+FLOAT FPS;
+
+ID3DXMesh *text= 0;
+ID3DXFont *mFont = 0;
+
+RECT rect;
 
 
+//计算FPS
+void CalcFps(float timeDelta)
+{
+    FrameCnt++;
+    TimeElapsed += timeDelta;
+    if (TimeElapsed >= 1.0f)
+    {
+        FPS = (float) FrameCnt / TimeElapsed;
+        TimeElapsed = 0.0f;
+        FrameCnt = 0;
+    }
+    
+}
 
 
 void Cleanup()
 {
-
+    text->Release();
+    mFont->Release();
 }
 
-const char getFilePath()
+void getFilePath(char *filepath)
 {
      //获取应用路径
     char exe_buff[MAX_PATH];
@@ -49,10 +71,8 @@ const char getFilePath()
     delete[] p;
     s += "src/img/crate.jpg";
     const char *strp = s.c_str();
-    char filepath[MAX_PATH];
     strcpy(filepath,strp);
     delete[] strp;
-    return filepath;
 }
 
 bool Setup()
@@ -60,7 +80,7 @@ bool Setup()
     g_device->SetRenderState(D3DRS_LIGHTING,false);//光源
 
     //设置光源
-    D3DXVECTOR3 dir(-1.0f, -1.0f, 0.0f);
+    D3DXVECTOR3 dir(0.0f, -1.0f, 0.0f);
     D3DXCOLOR c = WHITE;
     D3DLIGHT9 dirlight = InitDirectionallight(&dir, &c);
     dirlight.Diffuse = c;
@@ -73,22 +93,47 @@ bool Setup()
     g_device->SetRenderState(D3DRS_NORMALIZENORMALS, true); //从新计算法线
     g_device->SetRenderState(D3DRS_SPECULARENABLE, true);   //打开镜面光
 
-    const char filepath[MAX_PATH] = getFilePath();
-    
-   
-    g_device->SetSamplerState(0,D3DSAMP_MAXANISOTROPY,d3dutils::g_caps.MaxAnisotropy);//硬件支持的有效范围
-    g_device->SetSamplerState(0,D3DSAMP_MAGFILTER,D3DTEXF_LINEAR);
-    g_device->SetSamplerState(0,D3DSAMP_MINFILTER,D3DTEXF_LINEAR);
-    g_device->SetSamplerState(0,D3DSAMP_MIPFILTER,D3DTEXF_POINT);//多纹理链路
+    char filepath[MAX_PATH] = {}; 
+    getFilePath(filepath);
 
-    //alpha 
-    g_device->SetTextureStageState(0,D3DTSS_ALPHAARG1,D3DTA_DIFFUSE);
-    g_device->SetTextureStageState(0,D3DTSS_ALPHAOP,D3DTOP_SELECTARG1);
+    HDC hdc = CreateCompatibleDC(NULL);
+    HFONT hFont;
+    HFONT hFontOld;
 
-    g_device->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_SRCALPHA);
-    g_device->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_INVSRCALPHA);
+    LOGFONT logf;
+    ZeroMemory(&logf,sizeof(LOGFONT));
+    logf.lfHeight = 25;
+    logf.lfWidth = 12;
+    logf.lfEscapement = 0;
+    logf.lfWeight = FW_MEDIUM;
+    logf.lfItalic = false;//字体是否是斜体
+    logf.lfUnderline = false;// 下划线
+    logf.lfStrikeOut = false;// 字体是否有删除线
+    logf.lfCharSet = DEFAULT_CHARSET;
+    logf.lfOutPrecision = OUT_DEFAULT_PRECIS;
+    logf.lfClipPrecision = CLIP_DEFAULT_PRECIS;
+    logf.lfQuality = PROOF_QUALITY;
+    logf.lfPitchAndFamily = DEFAULT_PITCH;
+    strcpy(logf.lfFaceName,"Times New Roman");
 
-    
+    hFont =  CreateFontIndirect(&logf);
+    hFontOld = (HFONT) SelectObject(hdc,hFont);
+
+    D3DXCreateText(g_device,hdc,"Hello,world!",0.001f,0.4f,&text,0,0);
+
+    D3DXCreateFont(g_device,25,12,0,0,false,0,0,2,0,"Times New Roman",&mFont);
+
+    rect.left = 0;
+    rect.top = 0;
+    rect.right = 100;
+    rect.bottom = 100;
+
+    //
+	// Restore the old font and free the acquired HDC.
+	//
+    SelectObject(hdc, hFontOld);
+    DeleteObject( hFont );
+    DeleteDC( hdc );
 
 
     D3DXVECTOR3 position(0.0f,0.0f,-5.0f);
@@ -125,6 +170,14 @@ bool Display(float timeDelta)
         //                        后背               //深度             //模板
 		g_device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL, 0xff0000ff, 1.0f, 0);
 		g_device->BeginScene();
+
+        CalcFps(timeDelta);
+
+        g_device->SetMaterial(&WHITE_MTRL);
+        text->DrawSubset(0);
+        char cfps[20];
+        sprintf(cfps,"%.2f",FPS);
+        mFont->DrawText(0,TEXT(cfps),-1,&rect,DT_LEFT|DT_TOP,0xff000000);
 
 
 		g_device->EndScene();

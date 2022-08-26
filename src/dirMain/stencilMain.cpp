@@ -1,4 +1,4 @@
-// 模板
+// 模板缓冲区 实例 再议
 
 #include <windows.h>
 #include <string>
@@ -15,22 +15,101 @@
 HDC g_hdc=NULL;
 IDirect3DDevice9 *g_device = 0;
 
+ID3DXMesh *Teapot = 0;//茶壶
+D3DMATERIAL9 Teapotmtrl;//茶壶材质
+IDirect3DVertexBuffer9 *BkGndQuad = 0;//代表4边形，板条箱背景
+IDirect3DTexture9 *BkGndTex;//板条箱纹理
+D3DMATERIAL9 BkGndmtrl;//板条箱材质
+
+D3DXCOLOR red(1.0f,0.0f,0.0f,0.0f);
+D3DXCOLOR black(1.0f,1.0f,1.0f,0.0f);
+
+
+D3DXMATRIX World;//变换矩阵
+
+
 using namespace d3dutils;
 using namespace cube;
 using namespace std;
 
+
+//设置模板缓冲区
+void RenderStencil(){
+    if (g_device)
+    {
+        g_device->SetRenderState(D3DRS_STENCILENABLE,true);//打开模板缓冲区
+        g_device->SetRenderState(D3DRS_STENCILFUNC,D3DCMP_ALWAYS); // 设置缓冲区 全都通过
+        g_device->SetRenderState(D3DRS_STENCILREF,0x1);//通过缓冲区的值 都是1
+        g_device->SetRenderState(D3DRS_STENCILWRITEMASK,0xffffffff); //写入掩码 
+        g_device->SetRenderState(D3DRS_STENCILMASK,0xffffffff);//掩码
+        g_device->SetRenderState(D3DRS_STENCILZFAIL,D3DSTENCILOP_KEEP);//深度缓冲区 失败
+        g_device->SetRenderState(D3DRS_STENCILPASS,D3DSTENCILOP_REPLACE);//通过
+        g_device->SetRenderState(D3DRS_STENCILFAIL,D3DSTENCILOP_KEEP);// 失败
+    }
+    
+}
+
+
+void RenderMirror(){
+    if (g_device)
+    {   
+        g_device->SetRenderState(D3DRS_ZWRITEENABLE,false);//关闭深度缓冲区    
+        g_device->SetRenderState(D3DRS_ALPHABLENDENABLE,true);//打开混合模式 1
+        g_device->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_ZERO);//用（0，0，0，0）来混合src源 去掉src源 2
+        g_device->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_ONE);//(1,1,1,1) 来混和目标源，保持目标源不变 3
+        //1,2 ,3步骤是实现 不改变后备缓冲区的逻辑.
+    }
+
+
+    
+}
 
 
 
 
 void Cleanup()
 {
-
+    BkGndQuad->Release();
+    BkGndQuad = 0;
+    Teapot->Release();
+    Teapot = 0;
+    BkGndTex->Release();
+    BkGndTex = 0;
 }
 
-const char getFilePath()
+bool Setup()
 {
-     //获取应用路径
+    g_device->SetRenderState(D3DRS_LIGHTING,true);//光源
+    Teapotmtrl = RED_MTRL;
+    Teapotmtrl.Diffuse.a = 0.5f;
+    BkGndmtrl = WHITE_MTRL;
+
+    D3DXCreateTeapot(g_device,&Teapot,0);
+
+    CreateVertexBuffer(
+        g_device,
+        6 * sizeof(Vertex),
+        D3DUSAGE_WRITEONLY,
+        D3DPOOL_MANAGED,
+        &BkGndQuad
+    );
+    
+
+    cube::Vertex *v;
+
+    BkGndQuad->Lock(0,0,(void**)&v,0);
+    //前
+    v[0] = Vertex(-10.0f, -10.0f, 5.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, D3DCOLOR_XRGB(0, 0, 255));
+	v[1] = Vertex(-10.0f,  10.0f, 5.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, D3DCOLOR_XRGB(0, 0, 255));
+	v[2] = Vertex( 10.0f,  10.0f, 5.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, D3DCOLOR_XRGB(0, 0, 255));
+
+	v[3] = Vertex(-10.0f, -10.0f, 5.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, D3DCOLOR_XRGB(0, 0, 255));
+	v[4] = Vertex( 10.0f,  10.0f, 5.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, D3DCOLOR_XRGB(0, 0, 255));
+	v[5] = Vertex( 10.0f, -10.0f, 5.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, D3DCOLOR_XRGB(0, 0, 255));
+
+    BkGndQuad->Unlock();
+
+    //获取应用路径
     char exe_buff[MAX_PATH];
     GetModuleFileName(NULL,exe_buff,MAX_PATH);
     char *p = strtok(exe_buff,"\\");
@@ -52,28 +131,17 @@ const char getFilePath()
     char filepath[MAX_PATH];
     strcpy(filepath,strp);
     delete[] strp;
-    return filepath;
-}
+    ////纹理
+    HRESULT hr = D3DXCreateTextureFromFile(
+        g_device,
+        TEXT(filepath),
+        &BkGndTex
+    );
 
-bool Setup()
-{
-    g_device->SetRenderState(D3DRS_LIGHTING,false);//光源
-
-    //设置光源
-    D3DXVECTOR3 dir(-1.0f, -1.0f, 0.0f);
-    D3DXCOLOR c = WHITE;
-    D3DLIGHT9 dirlight = InitDirectionallight(&dir, &c);
-    dirlight.Diffuse = c;
-    dirlight.Specular = c * 0.3f;
-    dirlight.Ambient = c * 0.6f;
-    g_device->SetLight(0, &dirlight);
-    g_device->LightEnable(0, true);
-
-
-    g_device->SetRenderState(D3DRS_NORMALIZENORMALS, true); //从新计算法线
-    g_device->SetRenderState(D3DRS_SPECULARENABLE, true);   //打开镜面光
-
-    const char filepath[MAX_PATH] = getFilePath();
+    if (FAILED(hr))
+    {
+        MessageBox(0,TEXT("texture fail!"),0,0);   
+    }
     
    
     g_device->SetSamplerState(0,D3DSAMP_MAXANISOTROPY,d3dutils::g_caps.MaxAnisotropy);//硬件支持的有效范围
@@ -88,7 +156,20 @@ bool Setup()
     g_device->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_SRCALPHA);
     g_device->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_INVSRCALPHA);
 
-    
+    //设置光源
+
+    D3DXVECTOR3 dir(-1.0f, -1.0f, 0.0f);
+    D3DXCOLOR c = WHITE;
+    D3DLIGHT9 dirlight = InitDirectionallight(&dir, &c);
+    dirlight.Diffuse = c;
+    dirlight.Specular = c * 0.3f;
+    dirlight.Ambient = c * 0.6f;
+    g_device->SetLight(0, &dirlight);
+    g_device->LightEnable(0, true);
+
+
+    g_device->SetRenderState(D3DRS_NORMALIZENORMALS, true); //从新计算法线
+    g_device->SetRenderState(D3DRS_SPECULARENABLE, true);   //打开镜面光
 
 
     D3DXVECTOR3 position(0.0f,0.0f,-5.0f);
@@ -121,12 +202,47 @@ bool Display(float timeDelta)
 	if( g_device )
 	{		
 
+        if (GetAsyncKeyState('A') & 0x8000f )
+        {
+            Teapotmtrl.Diffuse.a +=  0.01f;
+        }
+
+        if (GetAsyncKeyState('S') & 0x8000f )
+        {
+            Teapotmtrl.Diffuse.a -=  0.01f;
+        }
+
+        if (Teapotmtrl.Diffuse.a>1.0f)
+        {
+            Teapotmtrl.Diffuse.a = 1.0f;
+        }
+
+        if (Teapotmtrl.Diffuse.a<0.0f)
+        {
+            Teapotmtrl.Diffuse.a = 0.0f;
+        }
         
         //                        后背               //深度             //模板
 		g_device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL, 0xff0000ff, 1.0f, 0);
 		g_device->BeginScene();
+        //画背景 箱子
+        g_device->SetMaterial(&BkGndmtrl);
+        g_device->SetTexture(0,BkGndTex);
+        g_device->SetFVF(cube::Vertex::FVF);
+        g_device->SetStreamSource(0,BkGndQuad,0,sizeof(Vertex));
+        g_device->DrawPrimitive(D3DPT_TRIANGLELIST,0,2);
 
-
+        //画teapot；
+        g_device->SetRenderState(D3DRS_ALPHABLENDENABLE,true);
+        D3DXMATRIX ObjWorldMatrices;
+	    D3DXMatrixTranslation(&ObjWorldMatrices,  0.0f, 0.0f,  0.0f);
+        g_device->SetTransform(D3DTS_WORLD,&ObjWorldMatrices);
+        //g_device->SetMaterial(0);
+        g_device->SetMaterial(&Teapotmtrl);//材质的作用是什么？ 需要光源才能显示设置材质的颜色等。
+        g_device->SetTexture(0,0);
+        g_device->SetFVF(cube::Vertex::FVF);
+        Teapot->DrawSubset(0);
+        g_device->SetRenderState(D3DRS_ALPHABLENDENABLE,false);
 		g_device->EndScene();
 		g_device->Present(0, 0, 0, 0);
         
@@ -212,6 +328,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     g_device->Release();
 	//【6】窗口类的注销
 	UnregisterClass(TEXT("ForTheDreamOfGameDevelop"), wndClass.hInstance);  //程序准备结束，注销窗口类
+
+
+    //send();
+
     
     return 0 ;
 }
