@@ -40,7 +40,6 @@ void CalcFps(float timeDelta)
         TimeElapsed = 0.0f;
         FrameCnt = 0;
     }
-    
 }
 
 
@@ -77,10 +76,10 @@ void getFilePath(char *filepath)
 
 bool Setup()
 {
-    g_device->SetRenderState(D3DRS_LIGHTING,false);//光源
+    g_device->SetRenderState(D3DRS_LIGHTING,true);//光源
 
     //设置光源
-    D3DXVECTOR3 dir(0.0f, -1.0f, 0.0f);
+    D3DXVECTOR3 dir(0.0f, -0.5f, 0.5f);
     D3DXCOLOR c = WHITE;
     D3DLIGHT9 dirlight = InitDirectionallight(&dir, &c);
     dirlight.Diffuse = c;
@@ -124,9 +123,9 @@ bool Setup()
     D3DXCreateFont(g_device,25,12,0,0,false,0,0,2,0,"Times New Roman",&mFont);
 
     rect.left = 0;
-    rect.top = 0;
-    rect.right = 100;
-    rect.bottom = 100;
+    rect.top = 550;
+    rect.right = 800;
+    rect.bottom = 600;
 
     //
 	// Restore the old font and free the acquired HDC.
@@ -177,7 +176,7 @@ bool Display(float timeDelta)
         text->DrawSubset(0);
         char cfps[20];
         sprintf(cfps,"%.2f",FPS);
-        mFont->DrawText(0,TEXT(cfps),-1,&rect,DT_LEFT|DT_TOP,0xff000000);
+        mFont->DrawText(0,TEXT(cfps),-1,&rect,DT_CENTER,0xff000000);
 
 
 		g_device->EndScene();
